@@ -16,6 +16,8 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import nltk
 from rogue import Rouge
+import spacy
+
 
 def filter_chars(word):
     chars = ['\n', ' ', '\'', None]
@@ -92,18 +94,18 @@ def eval_cosine_similarity_word2vec(actual, predicted):
     Vectorise based on a vocab that is a combination of actual summary and predicted summary
     :return: float (avg. cosine similarity across all documents)
     '''
+    nlp = spacy.load('en_core_web_md')
 
-    cosine_similarity = 0
+    cs = 0
+    print(len(actual))
     for i in range(len(actual)):
-        '''
-        vectoriser = Word2Vec()
-        actual_vector = vectoriser.transform(actual[i])
-        predicted_vector = vectoriser.transform(predicted[i])
-
-        cosine_similarity += cosine_similarity(actual_vector, predicted_vector)
-        '''
-
-    return (1.0 * cosine_similarity / len(actual))
+        vec1 = nlp(actual[i])
+        vec2 = nlp(predicted[i])
+        cs += vec1.similarity(vec2)
+        if(i%500==0):
+            print(i)
+        
+    return (1.0 * cs / len(actual))
 
 def eval_jaccard_distance(actual, predicted):
 
